@@ -1,6 +1,5 @@
 import { watchProp } from 'tinybubble';
 import { clientLog } from '../api/client.js';
-import drawThingsModelsData from '../../../server/data/draw-things-models.json' with { type: 'json' };
 
 /**
  * @typedef {{ id: string, name: string, filename: string, size: number }} DrawThingsModel
@@ -88,11 +87,10 @@ export default {
   /** @returns {DrawThingsModel[]} */
   availableModels() {
     const propsModels = Array.isArray(this.props.models) ? this.props.models : [];
-    if (propsModels.length) return propsModels;
-    return drawThingsModelsData.models.map((item) => ({ name: item.name, filename: item.name, size: 0 }));
+    return propsModels;
   },
   availableLoras() {
-    return drawThingsModelsData.loras.map((item) => item.name);
+    return [];
   },
   save() {
     clientLog('draw_things_save', { enabled: this.data.form.value.enabled, baseUrl: this.data.form.value.baseUrl, modelsDir: this.data.form.value.modelsDir });
