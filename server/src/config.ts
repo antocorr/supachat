@@ -56,10 +56,11 @@ export const defaults = {
     enabled: false,
     baseUrl: 'http://127.0.0.1:7860',
     modelsDir: Bun.env.DRAW_THINGS_MODELS_DIR || resolve(homedir(), 'Library/Containers/com.liuliu.draw-things/Data/Documents/Models'),
-    width: 384,
+    width: 512,
     height: 512,
     batchSize: 1,
-    textGuidance: 1,
+    textGuidance: 5,
+    steps: 8,
     promptPrepend: '',
     promptAppend: '',
     timeoutMs: 120000
