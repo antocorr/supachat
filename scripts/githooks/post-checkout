@@ -1,0 +1,35 @@
+#!/bin/bash
+# Post-checkout hook: same as post-commit, restores rpcable symlink after checkout.
+# Handles recovery from aborted commits, stash pop, branch switches, etc.
+
+set -e
+
+RPCABLE_DIR="packages/rpcable"
+TARGET_FILE=".git/rpcable-target"
+
+if [ ! -f "$TARGET_FILE" ]; then
+  exit 0
+fi
+
+if [ -L "$RPCABLE_DIR" ]; then
+  rm "$TARGET_FILE"
+  exit 0
+fi
+
+if [ ! -d "$RPCABLE_DIR" ]; then
+  rm "$TARGET_FILE"
+  exit 0
+fi
+
+TARGET="$(cat "$TARGET_FILE")"
+
+if [ ! -d "$TARGET" ]; then
+  echo "post-checkout: Restore target '$TARGET' does not exist — leaving $RPCABLE_DIR as real files"
+  rm "$TARGET_FILE"
+  exit 0
+fi
+
+echo "post-checkout: Restoring $RPCABLE_DIR symlink -> $TARGET"
+rm -rf "$RPCABLE_DIR"
+ln -s "$TARGET" "$RPCABLE_DIR"
+rm "$TARGET_FILE"

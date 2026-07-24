@@ -1,0 +1,11 @@
+{
+    "name": "rpcable-example-http-bun-tinybubble",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "bun run server.ts"
+    },
+    "dependencies": {
+        "tinybubble": "^1.0.1"
+    }
+}

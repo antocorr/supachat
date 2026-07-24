@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>piper-js · demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: { piper: { 50: '#f0f9ff', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' } } } } };
+  </script>
+</head>
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-indigo-950 min-h-screen text-white">
+
+  <!-- Importmap -- resolve npm packages in the browser -->
+  <script type="importmap">
+  {
+    "imports": {
+      "phonemizer": "https://cdn.jsdelivr.net/npm/phonemizer@1.2.1/dist/phonemizer.js",
+      "espeak-ng": "https://cdn.jsdelivr.net/npm/espeak-ng@1.0.2/dist/espeak-ng.js",
+      "onnxruntime-web": "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/ort.js",
+      "onnxruntime-common": "https://cdn.jsdelivr.net/npm/onnxruntime-common@1.21.0/dist/ort-common.js"
+    }
+  }
+  </script>
+
+  <div class="max-w-5xl mx-auto px-4 py-10">
+    <!-- Header -->
+    <div class="text-center mb-10">
+      <div class="inline-flex items-center gap-3 mb-3">
+        <span class="text-4xl">🔊</span>
+        <h1 class="text-4xl font-bold bg-gradient-to-r from-blue-400 via-cyan-300 to-emerald-300 bg-clip-text text-transparent">
+          piper-js
+        </h1>
+      </div>
+      <p class="text-slate-400 text-lg">Neural text-to-speech — 100% locale, nel browser o via server</p>
+    </div>
+
+    <!-- Main card -->
+    <div class="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-8 shadow-2xl">
+
+      <!-- Mode toggle -->
+      <div class="flex items-center gap-4 mb-8 bg-slate-800/50 rounded-xl px-4 py-3">
+        <span class="text-sm font-medium text-slate-400">Modalità</span>
+        <div class="flex rounded-lg border border-slate-700 overflow-hidden">
+          <button id="mode-server"
+                  class="mode-btn px-5 py-2 text-sm font-medium bg-piper-600 text-white transition">
+            🖥 Server
+          </button>
+          <button id="mode-client"
+                  class="mode-btn px-5 py-2 text-sm font-medium text-slate-300 hover:bg-slate-700 transition">
+            🌐 Browser (WASM)
+          </button>
+        </div>
+        <div id="mode-info" class="text-xs text-slate-500 ml-auto hidden lg:block">
+          <span id="mode-info-text">Il server elabora tutto (più lingue, più veloce)</span>
+        </div>
+      </div>
+
+      <!-- Two-column layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+        <!-- Left: controls -->
+        <div class="lg:col-span-3 space-y-5">
+
+          <!-- Text input -->
+          <div>
+            <label for="text-input" class="block text-sm font-medium text-slate-300 mb-2">Testo da sintetizzare</label>
+            <textarea id="text-input"
+                      class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-white placeholder-slate-500 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition resize-none"
+                      rows="4"
+                      placeholder="Inserisci del testo da pronunciare...">Hallo Welt! Dies ist ein Test der Sprachsynthese.</textarea>
+          </div>
+
+          <!-- Voice & Speed row -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="voice-select" class="block text-sm font-medium text-slate-300 mb-2">Voce</label>
+              <select id="voice-select"
+                      class="w-full bg-slate-800/60 border border-slate-700 rounded-xl px-4 py-3 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30 transition appearance-none cursor-pointer">
+                <optgroup label="English">
+                  <option value="speaches-ai/piper-en_US-lessac-medium">🇺🇸 English (US) — lessac</option>
+                  <option value="speaches-ai/piper-en_GB-vctk-medium">🇬🇧 English (UK) — vctk</option>
+                </optgroup>
+                <optgroup label="Deutsch">
+                  <option value="speaches-ai/piper-de_DE-thorsten-high" selected>🇩🇪 German — thorsten high</option>
+                  <option value="speaches-ai/piper-de_DE-thorsten-medium">🇩🇪 German — thorsten medium</option>
+                </optgroup>
+                <optgroup label="Français">
+                  <option value="speaches-ai/piper-fr_FR-mls-medium">🇫🇷 French — mls medium</option>
+                </optgroup>
+                <optgroup label="Italiano">
+                  <option value="speaches-ai/piper-it_IT-paola-medium">🇮🇹 Italian — paola medium</option>
+                </optgroup>
+                <optgroup label="Español">
+                  <option value="speaches-ai/piper-es_ES-davefx-medium">🇪🇸 Spanish — davefx medium</option>
+                </optgroup>
+              </select>
+            </div>
+            <div>
+              <label for="speed-slider" class="block text-sm font-medium text-slate-300 mb-2">
+                Velocità: <span id="speed-label" class="text-blue-400">1.0x</span>
+              </label>
+              <div class="flex items-center gap-3 pt-2">
+                <span class="text-xs text-slate-500">0.5</span>
+                <input id="speed-slider" type="range" min="0.5" max="2.0" step="0.1" value="1.0"
+                       class="w-full accent-blue-500 h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer" />
+                <span class="text-xs text-slate-500">2.0</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Generate button -->
+          <button id="generate-btn"
+                  class="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-500 hover:to-emerald-500 text-white font-semibold py-4 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-blue-600/20 flex items-center justify-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed">
+            <svg id="btn-icon" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+            </svg>
+            <span id="btn-text">Genera Audio</span>
+            <div id="btn-spinner" class="hidden">
+              <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+              </svg>
+            </div>
+          </button>
+
+          <!-- Progress bar -->
+          <div id="progress-area" class="hidden">
+            <div class="flex justify-between text-xs text-slate-500 mb-1">
+              <span id="progress-label">Download modello...</span>
+              <span id="progress-pct">0%</span>
+            </div>
+            <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+              <div id="progress-bar" class="bg-gradient-to-r from-blue-500 to-cyan-400 h-full rounded-full transition-all duration-300" style="width:0%"></div>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div id="status" class="hidden">
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-slate-800/60 border border-slate-700">
+              <div id="status-icon" class="mt-0.5">
+                <svg class="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="flex-1 min-w-0">
+                <p id="status-title" class="text-sm font-medium text-emerald-400">Completato</p>
+                <p id="status-detail" class="text-xs text-slate-400 mt-1"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: audio player + info -->
+        <div class="lg:col-span-2 space-y-4">
+          <!-- Audio player -->
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5">
+            <h3 class="text-sm font-medium text-slate-400 mb-3">🎵 Audio generato</h3>
+            <audio id="audio-player" controls class="w-full [&::-webkit-media-controls-panel]:bg-slate-800 [&::-webkit-media-controls-current-time-display]:text-white"
+                   style="display:none"></audio>
+            <div id="audio-placeholder" class="text-center py-10 text-slate-600">
+              <svg class="w-12 h-12 mx-auto mb-3 opacity-30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.01 9.01 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+              </svg>
+              <p class="text-sm">Premi "Genera Audio" per iniziare</p>
+            </div>
+          </div>
+
+          <!-- Info card -->
+          <div class="bg-slate-800/60 border border-slate-700 rounded-xl p-5 space-y-2 text-sm">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Durata</span>
+              <span id="info-duration" class="text-slate-200 font-mono">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Sample rate</span>
+              <span id="info-samplerate" class="text-slate-200 font-mono">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Lingua</span>
+              <span id="info-language" class="text-slate-200 font-mono">—</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-400">Modalità</span>
+              <span id="info-mode" class="text-slate-200 font-mono">—</span>
+            </div>
+            <div class="pt-2 border-t border-slate-700">
+              <details class="text-xs text-slate-500">
+                <summary class="cursor-pointer hover:text-slate-300 transition">Fonemi (IPA)</summary>
+                <pre id="info-phonemes" class="mt-2 bg-slate-900/50 rounded-lg p-3 overflow-x-auto text-emerald-300/80 text-xs leading-relaxed whitespace-pre-wrap"></pre>
+              </details>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-8 text-xs text-slate-600">
+      <p>piper-js · basato su <a href="https://github.com/OHF-Voice/piper1-gpl" class="text-blue-400 hover:underline" target="_blank">Piper TTS</a> · GPL-3.0</p>
+    </div>
+  </div>
+
+  <script type="module">
+  // ── Client-side application logic ──────────────────────────────────────
+
+  const MODE_SERVER = "server";
+  const MODE_CLIENT = "client";
+
+  let currentMode = MODE_SERVER;
+  let isGenerating = false;
+  let piperVoice = null; // cached for client mode
+
+  // DOM refs
+  const textInput = document.getElementById("text-input");
+  const voiceSelect = document.getElementById("voice-select");
+  const speedSlider = document.getElementById("speed-slider");
+  const speedLabel = document.getElementById("speed-label");
+  const generateBtn = document.getElementById("generate-btn");
+  const btnText = document.getElementById("btn-text");
+  const btnSpinner = document.getElementById("btn-spinner");
+  const progressArea = document.getElementById("progress-area");
+  const progressBar = document.getElementById("progress-bar");
+  const progressLabel = document.getElementById("progress-label");
+  const progressPct = document.getElementById("progress-pct");
+  const statusEl = document.getElementById("status");
+  const statusIcon = document.getElementById("status-icon");
+  const statusTitle = document.getElementById("status-title");
+  const statusDetail = document.getElementById("status-detail");
+  const audioPlayer = document.getElementById("audio-player");
+  const audioPlaceholder = document.getElementById("audio-placeholder");
+  const infoDuration = document.getElementById("info-duration");
+  const infoSamplerate = document.getElementById("info-samplerate");
+  const infoLanguage = document.getElementById("info-language");
+  const infoMode = document.getElementById("info-mode");
+  const infoPhonemes = document.getElementById("info-phonemes");
+  const modeInfoText = document.getElementById("mode-info-text");
+
+  // Mode buttons
+  document.querySelectorAll(".mode-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".mode-btn").forEach((b) => {
+        b.classList.remove("bg-piper-600", "text-white");
+        b.classList.add("text-slate-300");
+      });
+      btn.classList.remove("text-slate-300");
+      btn.classList.add("bg-piper-600", "text-white");
+
+      currentMode = btn.id === "mode-server" ? MODE_SERVER : MODE_CLIENT;
+      modeInfoText.textContent =
+        currentMode === MODE_SERVER
+          ? "Il server elabora tutto (più lingue, più veloce)"
+          : "Il browser carica WASM (~18MB espeak + ~13MB ONNX)";
+      infoMode.textContent = currentMode === MODE_SERVER ? "Server" : "Browser (WASM)";
+
+      // Reset cached voice on mode switch
+      piperVoice = null;
+    });
+  });
+
+  // Speed slider
+  speedSlider.addEventListener("input", () => {
+    speedLabel.textContent = parseFloat(speedSlider.value).toFixed(1) + "x";
+  });
+
+  // Generate button
+  generateBtn.addEventListener("click", generate);
+
+  async function generate() {
+    if (isGenerating) return;
+    isGenerating = true;
+    setGenerating(true);
+
+    hideStatus();
+    hideAudio();
+    resetInfo();
+
+    const text = textInput.value.trim();
+    if (!text) {
+      showStatus("warning", "Niente testo", "Inserisci del testo da pronunciare.");
+      setGenerating(false);
+      return;
+    }
+
+    try {
+      if (currentMode === MODE_SERVER) {
+        await generateServer(text);
+      } else {
+        await generateClient(text);
+      }
+    } catch (err) {
+      showStatus("error", "Errore", err.message || String(err));
+      console.error(err);
+    } finally {
+      setGenerating(false);
+      hideProgress();
+    }
+  }
+
+  // ── Server mode ──────────────────────────────────────────────────────
+
+  async function generateServer(text) {
+    const voice = voiceSelect.value;
+    const speed = parseFloat(speedSlider.value);
+
+    showProgress("Invio al server...", 50);
+    const resp = await fetch("/api/tts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text, voice, speed }),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({ error: resp.statusText }));
+      throw new Error(err.error || `Server error: ${resp.status}`);
+    }
+
+    showProgress("Decodifica audio...", 90);
+
+    // Get phonemes from response header (URI-encoded)
+    const phonemesRaw = resp.headers.get("x-phonemes") || "";
+    const phonemes = phonemesRaw ? decodeURIComponent(phonemesRaw) : "";
+    const sampleRate = resp.headers.get("x-sample-rate") || "22050";
+    const lang = resp.headers.get("x-language") || voice;
+
+    // Read audio blob
+    const blob = await resp.blob();
+    const url = URL.createObjectURL(blob);
+
+    showProgress("Completato", 100);
+    showAudio(url, blob, phonemes, parseInt(sampleRate), lang);
+    showStatus("success", "Audio generato", `${text.length} caratteri · ${formatDuration(blob.size, sampleRate)}`);
+  }
+
+  // ── Client (browser WASM) mode ──────────────────────────────────────
+
+  async function generateClient(text) {
+    showProgress("Inizializzazione motore vocale...", 10);
+
+    if (!piperVoice) {
+      showProgress("Caricamento piper-js...", 20);
+
+      // Dynamically import piper-js from local compiled dist
+      const { PiperVoice, env } = await import("/dist/node/index.js");
+
+      // Configure WASM paths for onnxruntime-web in the browser
+      env.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.21.0/dist/";
+
+      showProgress("Download modello vocale (~13MB)...", 40);
+
+      const voice = voiceSelect.value;
+      // Nota: per lingue non-inglesi, espeak-ng WASM (~18MB) viene
+      // scaricato automaticamente dalla CDN al primo utilizzo.
+
+      piperVoice = await PiperVoice.fromPretrained(voice, {
+        device: "wasm",
+        progressCallback: (p) => {
+          if (p.file) {
+            showProgress(`Download: ${p.file}`, p.percent ?? 50);
+          }
+        },
+      });
+
+      showProgress("Modello caricato!", 70);
+    }
+
+    const speed = parseFloat(speedSlider.value);
+
+    showProgress("Fonemizzazione...", 75);
+
+    // Phonemize for IPA display
+    const sentences = await piperVoice.phonemize(text);
+    const phonemes = sentences.map((s) => s.join("")).join("\n");
+
+    showProgress("Sintesi in corso...", 80);
+
+    // Generate audio directly in browser
+    const audio = await piperVoice.generate(text, { speed });
+
+    showProgress("Codifica WAV...", 90);
+
+    // Encode to WAV using the built-in method
+    const wav = await piperVoice.generateWav(text, { speed });
+
+    const blob = new Blob([wav], { type: "audio/wav" });
+    const url = URL.createObjectURL(blob);
+
+    showProgress("Completato", 100);
+
+    showAudio(url, blob, phonemes, piperVoice.sampleRate, voiceSelect.value);
+    showStatus("success", "Audio generato (browser)",
+      `${text.length} caratteri · ${formatDuration(blob.size, piperVoice.sampleRate)}`);
+  }
+
+  // ── UI helpers ──────────────────────────────────────────────────────
+
+  function setGenerating(active) {
+    isGenerating = active;
+    generateBtn.disabled = active;
+    btnText.classList.toggle("hidden", active);
+    btnSpinner.classList.toggle("hidden", !active);
+  }
+
+  function showProgress(label, pct) {
+    progressArea.classList.remove("hidden");
+    progressLabel.textContent = label;
+    progressPct.textContent = `${Math.round(pct)}%`;
+    progressBar.style.width = `${Math.min(pct, 100)}%`;
+  }
+
+  function hideProgress() {
+    progressArea.classList.add("hidden");
+  }
+
+  function showStatus(type, title, detail) {
+    if (!statusEl || !statusTitle || !statusDetail) return;
+    statusEl.classList.remove("hidden");
+    statusTitle.textContent = title;
+    statusDetail.textContent = detail;
+
+    const colors = {
+      success: { text: "text-emerald-400", bg: "border-emerald-700/50" },
+      error: { text: "text-red-400", bg: "border-red-700/50" },
+      warning: { text: "text-yellow-400", bg: "border-yellow-700/50" },
+    };
+    const c = colors[type] || colors.success;
+    if (statusTitle) statusTitle.className = `text-sm font-medium ${c.text}`;
+    const statusBox = statusEl.querySelector(".border-slate-700");
+    if (statusBox) {
+      statusBox.className = `flex items-start gap-3 p-4 rounded-xl bg-slate-800/60 border ${c.bg}`;
+    }
+  }
+
+  function hideStatus() {
+    if (statusEl) statusEl.classList.add("hidden");
+  }
+
+  function showAudio(url, blob, phonemes, sampleRate, lang) {
+    audioPlayer.src = url;
+    audioPlayer.style.display = "block";
+    audioPlaceholder.style.display = "none";
+    audioPlayer.play().catch(() => {});
+
+    const duration = audioPlayer.duration || (blob.size / 2 / parseInt(sampleRate || "22050"));
+    infoDuration.textContent = formatDuration(blob.size, sampleRate);
+    infoSamplerate.textContent = `${sampleRate} Hz`;
+    infoLanguage.textContent = lang;
+    infoPhonemes.textContent = phonemes || "(non disponibili)";
+  }
+
+  function hideAudio() {
+    audioPlayer.style.display = "none";
+    audioPlaceholder.style.display = "block";
+    audioPlayer.src = "";
+  }
+
+  function resetInfo() {
+    infoDuration.textContent = "—";
+    infoSamplerate.textContent = "—";
+    infoLanguage.textContent = "—";
+    infoPhonemes.textContent = "";
+  }
+
+  function formatDuration(bytes, sampleRate) {
+    const sr = parseInt(sampleRate || "22050");
+    // 16-bit mono PCM = 2 bytes per sample
+    const samples = bytes / 2;
+    const secs = samples / sr;
+    if (secs < 1) return `${(secs * 1000).toFixed(0)} ms`;
+    return `${secs.toFixed(1)} s`;
+  }
+
+  // Init mode display
+  infoMode.textContent = "Server";
+  </script>
+</body>
+</html>

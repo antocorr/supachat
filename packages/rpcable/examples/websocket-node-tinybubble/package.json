@@ -1,0 +1,12 @@
+{
+    "name": "rpcable-example-websocket-node-tinybubble",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "node server.mjs"
+    },
+    "dependencies": {
+        "tinybubble": "^1.0.1",
+        "ws": "^8.18.3"
+    }
+}

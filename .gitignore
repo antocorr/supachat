@@ -1,0 +1,70 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+
+# IDE / Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-*
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+bun.lock
+
+# Runtime / temp
+*.pid
+*.seed
+*.tmp
+tmp/
+.tmp/
+
+# Audio output
+audio_responses/
+
+# AI model files (large .onnx)
+*.onnx
+*.onnx.json
+
+# Server data / generated
+server/data/
+
+# AI agent sessions / context
+.claude/
+.agents/
+# Package lock (optional, scommenta se vuoi tenerli fuori)
+# package-lock.json
+context/
+implementation/
+planning/
+references/
+subagents/
+AGENTS.md
+package-lock.json
+.serena
+docs/
+data/
+fullfill/
+fullfilled/

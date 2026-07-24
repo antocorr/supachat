@@ -1,0 +1,65 @@
+{
+  "name": "piper-js",
+  "version": "0.1.0",
+  "description": "JavaScript port of Piper — fast and local neural text-to-speech engine",
+  "type": "module",
+  "main": "./dist/node/index.js",
+  "module": "./dist/node/index.js",
+  "browser": "./dist/web/index.js",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    "types": "./dist/types/index.d.ts",
+    "node": {
+      "import": "./dist/node/index.js",
+      "require": "./dist/node/index.cjs"
+    },
+    "default": "./dist/web/index.js"
+  },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "test": "bun test ./fulfill/test-piper-js.ts"
+  },
+  "keywords": [
+    "piper",
+    "tts",
+    "text-to-speech",
+    "espeak",
+    "phonemizer",
+    "offline-tts",
+    "neural-tts"
+  ],
+  "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OHF-Voice/piper1-gpl.git",
+    "directory": "piper-js"
+  },
+  "bugs": {
+    "url": "https://github.com/OHF-Voice/piper1-gpl/issues"
+  },
+  "homepage": "https://github.com/OHF-Voice/piper1-gpl/tree/main/piper-js",
+  "dependencies": {
+    "espeak-ng": "^1.0.2",
+    "onnxruntime-common": "^1.21.0",
+    "onnxruntime-web": "^1.21.0",
+    "phonemizer": "^1.2.1"
+  },
+  "peerDependencies": {
+    "onnxruntime-node": "^1.21.0"
+  },
+  "peerDependenciesMeta": {
+    "onnxruntime-node": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "@types/node": "^22.0.0"
+  }
+}

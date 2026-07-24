@@ -1,0 +1,40 @@
+#!/bin/bash
+# Post-commit hook: restore rpcable symlink after commit.
+# If .git/rpcable-target contains a path and packages/rpcable is a real directory,
+# the directory is replaced with a symlink pointing to that path, restoring
+# the local development experience.
+
+set -e
+
+RPCABLE_DIR="packages/rpcable"
+TARGET_FILE=".git/rpcable-target"
+
+# Only act if we saved a target path and rpcable is a real directory
+if [ ! -f "$TARGET_FILE" ]; then
+  exit 0
+fi
+
+if [ -L "$RPCABLE_DIR" ]; then
+  # Already a symlink — clean up target file and exit
+  rm "$TARGET_FILE"
+  exit 0
+fi
+
+if [ ! -d "$RPCABLE_DIR" ]; then
+  # Directory doesn't exist anymore — something odd happened, clean up target file
+  rm "$TARGET_FILE"
+  exit 0
+fi
+
+TARGET="$(cat "$TARGET_FILE")"
+
+if [ ! -d "$TARGET" ]; then
+  echo "post-commit: Restore target '$TARGET' does not exist — leaving $RPCABLE_DIR as real files"
+  rm "$TARGET_FILE"
+  exit 0
+fi
+
+echo "post-commit: Restoring $RPCABLE_DIR symlink -> $TARGET"
+rm -rf "$RPCABLE_DIR"
+ln -s "$TARGET" "$RPCABLE_DIR"
+rm "$TARGET_FILE"

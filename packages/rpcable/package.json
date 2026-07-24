@@ -1,0 +1,67 @@
+{
+    "name": "rpcable",
+    "version": "0.3.0",
+    "description": "Transparent, bidirectional RPC over socket.io, WebSocket, and HTTP — no string dispatch, no switch/case",
+    "type": "module",
+    "main": "./dist/rpcable.cjs.js",
+    "module": "./dist/rpcable.min.js",
+    "types": "./src/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/rpcable.min.js",
+            "require": "./dist/rpcable.cjs.js",
+            "types": "./src/index.d.ts"
+        }
+    },
+    "files": [
+        "dist",
+        "src/*.d.ts",
+        "src/*.ts",
+        "templates"
+    ],
+    "scripts": {
+        "build": "bun build.mjs",
+        "test": "bun test",
+        "pack:check": "npm pack --dry-run --json",
+        "prepublishOnly": "bun run build && bun test",
+        "example:socketio-node": "npm --prefix examples/socketio-node-tinybubble-tailwind run dev",
+        "example:http-bun": "cd examples/http-bun-tinybubble && bun run dev",
+        "example:websocket-bun": "cd examples/websocket-bun-tinybubble && bun run dev",
+        "example:websocket-node": "npm --prefix examples/websocket-node-tinybubble run dev",
+        "examples:dev": "node examples/dev-all.mjs",
+        "sync": "cp src/RpcAble.js examples/http-php-tinybubble-tailwind/rpcable.js && cp templates/adapters/RpcAble.php examples/http-php-tinybubble-tailwind/RpcAble.php"
+    },
+    "keywords": [
+        "rpc",
+        "socket.io",
+        "proxy",
+        "websocket",
+        "http",
+        "rpc-over-http"
+    ],
+    "author": "Antonio Correnti",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/antocorr/rpcable.git"
+    },
+    "homepage": "https://github.com/antocorr/rpcable#readme",
+    "bugs": {
+        "url": "https://github.com/antocorr/rpcable/issues"
+    },
+    "license": "MIT",
+    "peerDependencies": {
+        "socket.io": "4",
+        "socket.io-client": "4"
+    },
+    "peerDependenciesMeta": {
+        "socket.io": {
+            "optional": true
+        },
+        "socket.io-client": {
+            "optional": true
+        }
+    },
+    "devDependencies": {
+        "@types/bun": "latest"
+    }
+}

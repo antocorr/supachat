@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>rpcable Socket.io + TinyBubble + Tailwind</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            display: ['Space Grotesk', 'sans-serif'],
+                        },
+                        colors: {
+                            ink: '#0f172a',
+                            mint: '#14b8a6',
+                            sand: '#f8fafc',
+                        },
+                    },
+                },
+            };
+        </script>
+    </head>
+    <body class="min-h-screen bg-gradient-to-br from-slate-100 via-cyan-50 to-emerald-100 font-display text-ink">
+        <div id="app" class="mx-auto flex min-h-screen w-full max-w-4xl items-center p-6"></div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script type="module" src="/main.js"></script>
+    </body>
+</html>

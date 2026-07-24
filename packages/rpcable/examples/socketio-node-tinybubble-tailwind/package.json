@@ -1,0 +1,13 @@
+{
+    "name": "rpcable-example-socketio-node-tinybubble-tailwind",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "node server.mjs"
+    },
+    "dependencies": {
+        "express": "^4.21.2",
+        "socket.io": "^4.8.1",
+        "tinybubble": "^1.0.1"
+    }
+}

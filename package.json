@@ -1,0 +1,14 @@
+{
+  "name": "supachat",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "concurrently -n server,client -c blue,green \"cd server && bun run dev\" \"cd client && npm run dev\"",
+    "test": "cd server && bun test",
+    "build": "cd client && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "latest"
+  }
+}

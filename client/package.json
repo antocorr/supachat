@@ -1,0 +1,21 @@
+{
+  "name": "supachat-client",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@huggingface/transformers": "3.8.1",
+    "cannon-es": "^0.20.0",
+    "kokoro-js": "^1.2.1",
+    "three": "^0.185.1",
+    "tinybubble": "^1.3.0",
+    "typescript": "latest",
+    "vite": "latest"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,37 @@
+#!/bin/bash
+# Pre-commit hook: replace rpcable symlink with real files for commit.
+# If packages/rpcable is a symlink pointing to an existing directory,
+# it is replaced with a copy of the target, then staged.
+# The target path is saved in .git/rpcable-target so post-commit can restore it.
+
+set -e
+
+RPCABLE_DIR="packages/rpcable"
+TARGET_FILE=".git/rpcable-target"
+
+# Only act if rpcable is a symlink
+if [ ! -L "$RPCABLE_DIR" ]; then
+  exit 0
+fi
+
+TARGET="$(readlink "$RPCABLE_DIR")"
+
+# Only act if the symlink target actually exists
+if [ ! -d "$TARGET" ]; then
+  echo "pre-commit: $RPCABLE_DIR is a symlink but target '$TARGET' does not exist — skipping replacement"
+  exit 0
+fi
+
+echo "pre-commit: Replacing $RPCABLE_DIR symlink with real files from $TARGET"
+
+# Save the target path so post-commit can restore the symlink
+echo "$TARGET" > "$TARGET_FILE"
+
+# Remove symlink and copy real files
+rm "$RPCABLE_DIR"
+cp -R "$TARGET" "$RPCABLE_DIR"
+# Remove any nested .git if present (source might have its own repo)
+rm -rf "$RPCABLE_DIR/.git"
+
+# Stage the replaced directory
+git add "$RPCABLE_DIR"

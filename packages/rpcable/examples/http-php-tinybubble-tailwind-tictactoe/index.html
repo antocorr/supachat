@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>RpcAble Tic Tac Toe Arena</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script>
+            tailwind.config = {
+                theme: {
+                    extend: {
+                        fontFamily: {
+                            display: ['Baloo 2', 'sans-serif'],
+                            body: ['Nunito', 'sans-serif'],
+                        },
+                        colors: {
+                            citrus: '#ff9e1b',
+                            peel: '#ef6c00',
+                            limeade: '#86cf2e',
+                            rind: '#5ca617',
+                            cream: '#fff8ea',
+                            shell: '#f2e4cf',
+                            ink: '#7a4309',
+                        },
+                        boxShadow: {
+                            arena: '0 30px 90px rgba(114, 62, 12, 0.16)',
+                            frame: '0 24px 70px rgba(102, 55, 9, 0.18)',
+                        },
+                    },
+                },
+            };
+        </script>
+        <style>
+            :root {
+                --ink: #263238;
+            }
+
+            * {
+                box-sizing: border-box;
+            }
+
+            html, body {
+                height: 100%;
+            }
+
+            body {
+                margin: 0;
+                background:
+                    radial-gradient(circle at 18% 18%, rgba(255, 162, 31, 0.18), transparent 24%),
+                    radial-gradient(circle at 82% 14%, rgba(165, 216, 15, 0.16), transparent 22%),
+                    linear-gradient(180deg, #fff8e9 0%, #f7f0dc 100%);
+                color: var(--ink);
+            }
+
+            .noise::before {
+                content: '';
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                opacity: 0.055;
+                background-image:
+                    radial-gradient(circle at 20% 20%, #000 0.8px, transparent 0.9px),
+                    radial-gradient(circle at 80% 30%, #000 0.7px, transparent 0.8px),
+                    radial-gradient(circle at 40% 70%, #000 0.8px, transparent 0.9px);
+                background-size: 28px 28px;
+            }
+
+            .citrus-header {
+                background: linear-gradient(90deg, #ff8a1f 0%, #ffbe2e 42%, #a7d80f 100%);
+            }
+
+            .desktop-stage {
+                width: 100vw;
+                min-height: 100vh;
+            }
+
+            .arena-surface {
+                background:
+                    radial-gradient(circle at 50% 0%, rgba(255, 199, 75, 0.08), transparent 26%),
+                    linear-gradient(180deg, #26313f 0%, #18202b 48%, #10161f 100%);
+            }
+
+            .arena-side {
+                position: relative;
+            }
+
+            .phone-shell {
+                width: 360px;
+                height: 720px;
+                border-radius: 44px;
+                padding: 14px;
+                background: linear-gradient(180deg, #fbfaf7 0%, #efe7da 100%);
+                box-shadow:
+                    0 28px 60px rgba(5, 8, 14, 0.42),
+                    inset 0 0 0 1px rgba(255,255,255,0.92),
+                    inset 0 0 0 2px rgba(40, 30, 10, 0.06);
+                position: relative;
+                z-index: 2;
+            }
+
+            .phone-screen {
+                height: 100%;
+                border-radius: 34px;
+                overflow: hidden;
+                background:
+                    radial-gradient(circle at 20% 14%, rgba(255,255,255,0.12), transparent 18%),
+                    radial-gradient(circle at 82% 16%, rgba(202, 255, 110, 0.10), transparent 20%),
+                    linear-gradient(180deg, #ffa12e 0%, #ffc52d 26%, #f3d86f 45%, #efe0bf 68%, #f7eddc 100%);
+                box-shadow: inset 0 0 0 1px rgba(255,255,255,0.6);
+                position: relative;
+            }
+
+            .island {
+                position: absolute;
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 116px;
+                height: 28px;
+                border-radius: 999px;
+                background: #151515;
+                z-index: 8;
+            }
+
+            .camera {
+                position: absolute;
+                right: 18px;
+                top: 9px;
+                width: 10px;
+                height: 10px;
+                border-radius: 999px;
+                background: radial-gradient(circle at 35% 35%, #2c7bff, #091222 70%);
+            }
+
+            .side-button,
+            .side-button-right {
+                position: absolute;
+                width: 4px;
+                border-radius: 999px;
+                background: rgba(110, 98, 82, 0.4);
+            }
+
+            .side-button {
+                left: -2px;
+            }
+
+            .side-button.b1 {
+                top: 150px;
+                height: 62px;
+            }
+
+            .side-button.b2 {
+                top: 230px;
+                height: 88px;
+            }
+
+            .side-button-right {
+                right: -2px;
+                top: 190px;
+                height: 112px;
+            }
+
+            .divider-vertical {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                left: 50%;
+                width: 1px;
+                background: rgba(255, 255, 255, 0.08);
+                z-index: 1;
+            }
+
+            @media (max-width: 1200px) {
+                .phone-shell {
+                    transform: scale(0.9);
+                    transform-origin: top center;
+                    margin-bottom: -58px;
+                }
+            }
+
+            @media (max-width: 1024px) {
+                .divider-vertical {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 960px) {
+                .phone-shell {
+                    transform: scale(0.82);
+                    margin-bottom: -96px;
+                }
+            }
+        </style>
+    </head>
+    <body class="min-h-screen font-body text-ink">
+        <div id="app" class="min-h-screen"></div>
+        <script type="module" src="./index.js"></script>
+    </body>
+</html>
